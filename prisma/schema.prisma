@@ -13,3 +13,73 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id           String        @id @default(uuid(7)) @db.Uuid
+  username     String        @unique
+  passwordHash String
+  name         String
+  imgUrl       String        @default("https://res.cloudinary.com/dlsa973vu/image/upload/q_auto/f_auto/v1775944983/370_eo3prg.webp")
+  contacts     Contact[]     @relation("OwnedContacts")
+  contactOf    Contact[]     @relation("ContactOf")
+  chats        Chat[]
+  chatMembers  ChatMember[]
+  sentMessages ChatMessage[]
+}
+
+model Contact {
+  id        String  @id @default(uuid(7)) @db.Uuid
+  owner     User    @relation("OwnedContacts", fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String  @db.Uuid
+  user      User?   @relation("ContactOf", fields: [userId], references: [id], onDelete: SetNull)
+  userId    String? @db.Uuid
+  nickname  String?
+  isBlocked Boolean @default(false)
+}
+
+model Chat {
+  id          String        @id @default(uuid(7)) @db.Uuid
+  name        String?
+  imgUrl      String?
+  createdBy   User?         @relation(fields: [createdById], references: [id], onDelete: SetNull)
+  createdById String?       @db.Uuid
+  createdAt   DateTime      @default(now())
+  isGroup     Boolean       @default(false)
+  members     ChatMember[]
+  messages    ChatMessage[]
+}
+
+model ChatMember {
+  id     String         @id @default(uuid(7)) @db.Uuid
+  chat   Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId String         @db.Uuid
+  user   User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?        @db.Uuid
+  role   ChatMemberRole @default(MEMBER)
+}
+
+enum ChatMemberRole {
+  ADMIN
+  MEMBER
+}
+
+model ChatMessage {
+  id        String          @id @default(uuid(7)) @db.Uuid
+  chat      Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  chatId    String          @db.Uuid
+  sender    User?           @relation(fields: [senderId], references: [id], onDelete: SetNull)
+  senderId  String?         @db.Uuid
+  content   String?
+  type      ChatMessageType @default(TEXT)
+  metadata  Json?
+  createdAt DateTime        @default(now())
+  replyTo   ChatMessage?    @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
+  replyToId String?         @db.Uuid
+  replies   ChatMessage[]   @relation("MessageReplies")
+}
+
+enum ChatMessageType {
+  TEXT
+  IMAGE
+  SYSTEM_EVENT
+}
