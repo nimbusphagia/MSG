@@ -14,10 +14,12 @@ export async function getUsers(): Promise<SafeUser[]> {
   });
 }
 export async function getUserById(id: UuidType): Promise<SafeUser | null> {
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id },
     omit: { passwordHash: true }
   });
+  if (!user) throw new NotFoundError("User not found");
+  return user;
 }
 export async function createUser({ username, password, name }: UserInput): Promise<SafeUser> {
   await validateUsername(username);
@@ -51,9 +53,9 @@ export async function changePassword({ id, oldPassword, newPassword }: UserEditP
     omit: { passwordHash: true }
   })
 }
-export async function deleteUser({ id, password }: UserDelete): Promise<SafeUser> {
+export async function deleteUserServ({ id, password }: UserDelete): Promise<void> {
   await validateUserWithPassword(id, password);
-  return prisma.user.delete({ where: { id }, omit: { passwordHash: true } });
+  await prisma.user.delete({ where: { id }, select: { id: true } });
 }
 // UTILS 
 async function validateUsername(username: string): Promise<void> {

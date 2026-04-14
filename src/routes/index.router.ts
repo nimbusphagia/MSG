@@ -1,12 +1,12 @@
 import { Router } from "express";
 import userRouter from "./user.router";
-import contactRouter from "./contact.router";
 import chatRouter from "./chat.router";
+import groupRouter from "./group.router";
 
 const indexRouter = Router();
 
 indexRouter.use("/user", userRouter);
-indexRouter.use("/contact", contactRouter);
 indexRouter.use("/chat", chatRouter);
+indexRouter.use("/group", groupRouter);
 
 export default indexRouter;

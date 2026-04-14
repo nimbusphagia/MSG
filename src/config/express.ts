@@ -1,6 +1,8 @@
 import "dotenv/config"
 import express from 'express'
 import cors from 'cors'
+import { errorMiddleware } from "./errorHandler"
+import indexRouter from "../routes/index.router"
 
 const app = express()
 
@@ -13,5 +15,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
+app.use(indexRouter);
 
+app.use(errorMiddleware);
 export default app

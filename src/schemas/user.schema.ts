@@ -36,6 +36,7 @@ export const UserInputSchema = UserSchema
   .omit({
     id: true,
     passwordHash: true,
+    imgUrl: true
   })
   .extend({
     password: PasswordSchema,
