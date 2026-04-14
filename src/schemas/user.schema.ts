@@ -1,9 +1,9 @@
 import z from "zod";
-import { PasswordSchema, UuidSchema } from "./util.schema";
+import { PasswordSchema, UsernameSchema, UuidSchema } from "./util.schema";
 
 export const UserModelSchema = z.object({
   id: UuidSchema,
-  username: z.string(),
+  username: UsernameSchema,
   passwordHash: z.string(),
   name: z.string(),
   imgUrl: z.url().optional(),
@@ -18,7 +18,7 @@ export type UserPureType = z.infer<typeof UserModelSchema>;
 
 export const UserSchema = z.object({
   id: UuidSchema,
-  username: z.string(),
+  username: UsernameSchema,
   passwordHash: z.string(),
   name: z.string(),
   imgUrl: z.url().optional(),
@@ -64,3 +64,4 @@ export const UserDeleteSchema = z.object({
   password: PasswordSchema,
 });
 export type UserDelete = z.infer<typeof UserDeleteSchema>;
+

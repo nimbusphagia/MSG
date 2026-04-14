@@ -11,4 +11,20 @@ export const PasswordSchema = z.string()
   .regex(/[0-9]/, { message: "Password must contain at least one number" })
   .regex(/[^a-zA-Z0-9]/, { message: "Password must contain at least one special character" });
 
+export const UsernameSchema = z.string()
+  .min(3, { message: "Username must be at least 3 characters long" })
+  .max(20, { message: "Username must be less than 20 characters" })
+  .regex(/^[a-zA-Z0-9._]+$/, {
+    message: "Username can only contain letters, numbers, dots, and underscores"
+  })
+  .regex(/^(?![._])/, {
+    message: "Username cannot start with a dot or underscore"
+  })
+  .regex(/(?<![._])$/, {
+    message: "Username cannot end with a dot or underscore"
+  })
+  .regex(/^(?!.*[._]{2})/, {
+    message: "Username cannot contain consecutive dots or underscores"
+  });
 
+export type UsernameType = z.infer<typeof UsernameSchema>;

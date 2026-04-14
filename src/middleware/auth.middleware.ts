@@ -9,7 +9,7 @@ interface AuthPayload extends JWTPayload {
 
 export async function authMiddleware(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.cookies?.token;
     if (!token) throw new UnauthorizedError("No token provided");
     const { payload } = await jwtVerify<AuthPayload>(token, JWT_SECRET);
     req.user = { id: payload.sub };
