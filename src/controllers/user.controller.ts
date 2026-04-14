@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { UuidSchema } from "../schemas/util.schema";
 import { createUser, deleteUserServ, editUser, getUserById, getUsers } from "../services/user.service";
-import { UserDeleteSchema, UserEditInputSchema, UserInputSchema } from "../schemas/user.schema";
+import { UserDeleteSchema, UserEditInputSchema } from "../schemas/user.schema";
 
 export async function getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -20,15 +20,7 @@ export async function getById(req: Request, res: Response, next: NextFunction): 
     next(err);
   }
 }
-export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const data = UserInputSchema.parse(req.body);
-    const user = await createUser(data);
-    res.status(201).json(user);
-  } catch (err) {
-    next(err);
-  }
-}
+
 export async function edit(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const data = UserEditInputSchema.parse({ ...req.body, id: req.params.id });
