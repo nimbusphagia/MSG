@@ -2,7 +2,7 @@ import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import { SafeUser, UserDelete, UserEditInput, UserEditPassword, UserInput } from "../schemas/user.schema";
 import type { UuidType } from "../schemas/util.schema";
-import { ConflictError, NotFoundError, UnauthorizedError } from "../errors";
+import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
 
 
 
@@ -29,22 +29,35 @@ export async function createUser({ username, password, name }: UserInput): Promi
     omit: { passwordHash: true }
   })
 }
-export async function editUser({ id, username, name, imgUrl }: UserEditInput): Promise<SafeUser> {
+export async function editUser(
+  { id, username, name, imgUrl }: UserEditInput,
+  currentUserId: UuidType
+): Promise<SafeUser> {
+  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
+
   const existingUser = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   if (!existingUser) throw new NotFoundError("User not found");
+
   if (username) await validateUsername(username);
+
   const data = {
-    ...(username && { username }),
-    ...(name && { name }),
-    ...(imgUrl && { imgUrl }),
+    ...(username !== undefined && { username }),
+    ...(name !== undefined && { name }),
+    ...(imgUrl !== undefined && { imgUrl }),
+  };
+
+  if (Object.keys(data).length === 0) {
+    throw new ValidationError("No fields to update");
   }
+
   return prisma.user.update({
     where: { id },
     data,
-    omit: { passwordHash: true }
-  })
-};
-export async function changePassword({ id, oldPassword, newPassword }: UserEditPassword): Promise<SafeUser> {
+    omit: { passwordHash: true },
+  });
+}
+export async function changePassword({ id, oldPassword, newPassword }: UserEditPassword, currentUserId: UuidType): Promise<SafeUser> {
+  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
   await validateUserWithPassword(id, oldPassword);
   const newHash = await bcrypt.hash(newPassword, 12);
   return prisma.user.update({
@@ -53,9 +66,10 @@ export async function changePassword({ id, oldPassword, newPassword }: UserEditP
     omit: { passwordHash: true }
   })
 }
-export async function deleteUserServ({ id, password }: UserDelete): Promise<void> {
+export async function deleteUserServ({ id, password }: UserDelete, currentUserId: UuidType): Promise<void> {
+  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
   await validateUserWithPassword(id, password);
-  await prisma.user.delete({ where: { id }, select: { id: true } });
+  await prisma.user.delete({ where: { id } });
 }
 // UTILS 
 async function validateUsername(username: string): Promise<void> {
