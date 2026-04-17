@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { SafeUser, UserDelete, UserEditInput, UserEditPassword, UserInput } from "../schemas/user.schema";
 import type { UuidType } from "../schemas/util.schema";
 import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
+import { validateService } from "./utils";
 
 
 
@@ -33,8 +34,7 @@ export async function editUser(
   { id, username, name, imgUrl }: UserEditInput,
   currentUserId: UuidType
 ): Promise<SafeUser> {
-  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
-
+  validateService({ id, currentUserId });
   const existingUser = await prisma.user.findUnique({ where: { id }, select: { id: true } });
   if (!existingUser) throw new NotFoundError("User not found");
 
@@ -57,7 +57,7 @@ export async function editUser(
   });
 }
 export async function changePassword({ id, oldPassword, newPassword }: UserEditPassword, currentUserId: UuidType): Promise<SafeUser> {
-  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
+  validateService({ id, currentUserId });
   await validateUserWithPassword(id, oldPassword);
   const newHash = await bcrypt.hash(newPassword, 12);
   return prisma.user.update({
@@ -67,7 +67,7 @@ export async function changePassword({ id, oldPassword, newPassword }: UserEditP
   })
 }
 export async function deleteUserServ({ id, password }: UserDelete, currentUserId: UuidType): Promise<void> {
-  if (id !== currentUserId) throw new ForbiddenError("User doesn't have permissions");
+  validateService({ id, currentUserId });
   await validateUserWithPassword(id, password);
   await prisma.user.delete({ where: { id } });
 }

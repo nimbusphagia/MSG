@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { UuidSchema } from "../schemas/util.schema";
-import { changePassword, createUser, deleteUserServ, editUser, getUserById, getUsers } from "../services/user.service";
+import { changePassword, deleteUserServ, editUser, getUserById, getUsers } from "../services/user.service";
 import { UserDeleteSchema, UserEditInputSchema, UserEditPasswordSchema } from "../schemas/user.schema";
 import { UnauthorizedError } from "../errors";
 

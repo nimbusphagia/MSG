@@ -35,6 +35,8 @@ model Contact {
   userId    String? @db.Uuid
   nickname  String?
   isBlocked Boolean @default(false)
+
+  @@unique([ownerId, userId])
 }
 
 model Chat {

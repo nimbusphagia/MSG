@@ -1,4 +1,5 @@
 import z from "zod"
+import { id } from "zod/v4/locales";
 
 export const UuidSchema = z.uuidv7();
 export type UuidType = z.infer<typeof UuidSchema>;
@@ -29,3 +30,8 @@ export const UsernameSchema = z.string()
 
 export type UsernameType = z.infer<typeof UsernameSchema>;
 
+export const CurrentUserValidationSchema = z.object({
+  id: UuidSchema,
+  currentUserId: UuidSchema,
+});
+export type CurrentUserValidation = z.infer<typeof CurrentUserValidationSchema>;
