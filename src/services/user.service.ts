@@ -2,7 +2,7 @@ import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
 import { SafeUser, UserDelete, UserEditInput, UserEditPassword, UserInput } from "../schemas/user.schema";
 import type { UuidType } from "../schemas/util.schema";
-import { ConflictError, ForbiddenError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
+import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
 import { validateService } from "./utils";
 
 

@@ -2,14 +2,7 @@ import prisma from "../config/prisma";
 import type { UuidType } from "../schemas/util.schema";
 import { ConflictError, NotFoundError } from "../errors";
 import { ContactNicknameInput, ContactOutput, ContactType } from "../schemas/contact.schema";
-
-const safeUserInclude = {
-  user: {
-    omit: {
-      passwordHash: true,
-    }
-  }
-}
+import { safeUserInclude } from "./utils";
 
 export async function getContactsById(currentUserId: UuidType): Promise<ContactType[]> {
   return prisma.contact.findMany({

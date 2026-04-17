@@ -1,5 +1,5 @@
 import z from "zod"
-import { id } from "zod/v4/locales";
+import { Prisma } from "../generated/prisma/client";
 
 export const UuidSchema = z.uuidv7();
 export type UuidType = z.infer<typeof UuidSchema>;
@@ -35,3 +35,15 @@ export const CurrentUserValidationSchema = z.object({
   currentUserId: UuidSchema,
 });
 export type CurrentUserValidation = z.infer<typeof CurrentUserValidationSchema>;
+
+
+export const JsonValueSchema: z.ZodType<Prisma.JsonValue> = z.lazy(() =>
+  z.union([
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+    z.array(JsonValueSchema),
+    z.record(z.string(), JsonValueSchema),
+  ])
+);
