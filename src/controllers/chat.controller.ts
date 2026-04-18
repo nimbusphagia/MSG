@@ -3,7 +3,8 @@ import { UuidSchema } from "../schemas/util.schema";
 import { UnauthorizedError } from "../errors";
 import { createContact, deleteContactServ, editNicknameServ, getContactById, getContactsById, toggleBlock } from "../services/contact.service";
 import { ContactNicknameInputSchema } from "../schemas/contact.schema";
-import { getChatById, getChatsById } from "../services/chat.service";
+import { createChatServ, createGroupChatServ, deleteChatServ, editGroupInfoServ, getChatById, getChatsById, getGroupChatById } from "../services/chat.service";
+import { GroupChatInputSchema } from "../schemas/chat.schema";
 
 export async function getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -26,47 +27,60 @@ export async function getChat(req: Request, res: Response, next: NextFunction): 
     next(err);
   }
 }
-export async function create(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getGroup(req: Request, res: Response, next: NextFunction): Promise<void> {
+  try {
+    if (!req.user) throw new UnauthorizedError("Not authenticated");
+    const currentUserId = req.user.id
+    const chatId = UuidSchema.parse(req.params.id);
+    const chat = await getGroupChatById(chatId, currentUserId);
+    res.status(200).json(chat);
+  } catch (err) {
+    next(err);
+  }
+}
+export async function createChat(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
     const currentUserId = req.user.id;
-    const userId = UuidSchema.parse(req.body.userId);
-    const contact = await createContact(userId, currentUserId);
-    res.status(201).json(contact);
+    const contactId = UuidSchema.parse(req.body.contactId);
+    const chat = await createChatServ(contactId, currentUserId);
+    res.status(201).json(chat);
   } catch (err) {
     next(err);
   }
 }
-export async function editNickname(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function createGroupChat(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
-    const currentUserId = req.user.id
-    const data = ContactNicknameInputSchema.parse({ id: req.params.id, ...req.body })
-    const contact = await editNicknameServ(data, currentUserId);
-    res.status(200).json(contact);
+    const currentUserId = req.user.id;
+    const data = GroupChatInputSchema.parse(req.body);
+    const groupChat = await createGroupChatServ(data, currentUserId);
+    res.status(201).json(groupChat);
   } catch (err) {
     next(err);
   }
 }
-export async function deleteContact(req: Request, res: Response, next: NextFunction): Promise<void> {
+
+export async function deleteChat(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
     const currentUserId = req.user.id
-    const contactId = UuidSchema.parse(req.params.id);
-    await deleteContactServ(contactId, currentUserId);
+    const chatId = UuidSchema.parse(req.params.id);
+    await deleteChatServ(chatId, currentUserId);
     res.status(204).end();
   } catch (err) {
     next(err);
   }
 }
-export async function toggleIsBlocked(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function editGroupInfo(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
     const currentUserId = req.user.id
-    const contactId = UuidSchema.parse(req.params.id);
-    const contact = await toggleBlock(contactId, currentUserId);
+    const data = GroupChatInputSchema.parse({ id: req.params.id, ...req.body })
+    const contact = await editGroupInfoServ(data, currentUserId);
     res.status(200).json(contact);
   } catch (err) {
-    next(err)
+    next(err);
   }
 }
+
