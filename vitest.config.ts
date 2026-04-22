@@ -5,8 +5,11 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
+    fileParallelism: false,
+    sequence: {
+      concurrent: false,
+    },
     env: {
-      ...process.env,
       NODE_ENV: 'test',
     },
   },

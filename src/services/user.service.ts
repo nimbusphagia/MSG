@@ -5,8 +5,6 @@ import type { UuidType } from "../schemas/util.schema";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
 import { validateService } from "./utils";
 
-
-
 export async function getUsers(): Promise<SafeUser[]> {
   return prisma.user.findMany({
     omit: {
