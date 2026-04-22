@@ -1,4 +1,4 @@
-# Messaging API
+# MSG API
 > Express · TypeScript · Prisma · PostgreSQL · Zod · Vitest
 
 A REST API for a real-time messaging service supporting one-on-one chats, group chats, contacts, and user management.
