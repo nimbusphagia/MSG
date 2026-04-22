@@ -1,7 +1,6 @@
-import z, { uuidv7 } from "zod";
-import { SafeUserSchema, UserSchema } from "./user.schema";
+import z from "zod";
+import { SafeUserSchema } from "./user.schema";
 import { UuidSchema } from "./util.schema";
-import { extend } from "zod/v4/core/util.cjs";
 
 export const ContactModelSchema = z.object({
   id: z.string(),

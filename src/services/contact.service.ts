@@ -1,6 +1,6 @@
 import prisma from "../config/prisma";
 import type { UuidType } from "../schemas/util.schema";
-import { ConflictError, NotFoundError } from "../errors";
+import { ConflictError, NotFoundError, ValidationError } from "../errors";
 import { ContactNicknameInput, ContactOutput, ContactType } from "../schemas/contact.schema";
 import { safeUserInclude } from "./utils";
 
@@ -19,6 +19,7 @@ export async function getContactById(contactId: UuidType, currentUserId: UuidTyp
   return contact;
 }
 export async function createContact(userId: UuidType, currentUserId: UuidType): Promise<ContactType> {
+  if (userId === currentUserId) throw new ValidationError("Cannot add yourself");
   const existingContact = await prisma.contact.findUnique({
     where: {
       ownerId_userId: { ownerId: currentUserId, userId }

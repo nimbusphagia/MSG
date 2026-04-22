@@ -8,16 +8,16 @@ export async function createMessage(data: MessageCreate, currentUserId: UuidType
     where: {
       id: data.chatId,
       members: {
-        some: { id: currentUserId },
+        some: { userId: currentUserId },
       }
     }
   });
   if (!existingChat) throw new NotFoundError("Chat not found");
-  return prisma.chatMessage.create({ data });
+  return prisma.chatMessage.create({ data: { ...data, senderId: currentUserId } });
 }
 
 export async function editMessage(id: UuidType, data: MessageCreate, currentUserId: UuidType): Promise<MessageType> {
-  const message = prisma.chatMessage.findUnique({
+  const message = await prisma.chatMessage.findUnique({
     where: {
       id,
       chatId: data.chatId,

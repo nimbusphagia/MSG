@@ -45,7 +45,7 @@ export async function createGroupChatServ({ name, imgUrl }: GroupChatInput, curr
       imgUrl,
       members: {
         create: [
-          { userId: currentUserId },
+          { userId: currentUserId, role: "OWNER" },
         ]
       }
     },
@@ -112,6 +112,7 @@ export async function createMember({ chatId, userId }: ChatMemberInput, currentU
       userId
     },
     select: {
+      id: true,
       userId: true,
       chatId: true,
       role: true

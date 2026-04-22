@@ -4,8 +4,6 @@ import { ConflictError, NotFoundError } from "../errors";
 import { ChatLazy, ChatType } from "../schemas/chat.schema";
 import { safeUserInclude } from "./utils";
 
-
-
 export async function getChatsById(currentUserId: UuidType): Promise<ChatLazy[]> {
   return prisma.chat.findMany({
     where: {

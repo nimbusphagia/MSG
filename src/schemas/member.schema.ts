@@ -38,6 +38,7 @@ export const ChatMemberInputSchema = z.object({
 export type ChatMemberInput = z.infer<typeof ChatMemberInputSchema>;
 
 export const ChatMemberOutputSchema = z.object({
+  id: UuidSchema,
   chatId: UuidSchema,
   userId: UuidSchema.nullable(),
   role: z.enum(["MEMBER", "ADMIN", "OWNER"]),

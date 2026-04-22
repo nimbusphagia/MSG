@@ -31,13 +31,26 @@ export const ChatMessageSchema = z.object({
 
 export type MessageType = z.infer<typeof ChatMessageSchema>;
 
-export const MessageCreateSchema = z.object({
+const TextMessageSchema = z.object({
   chatId: UuidSchema,
-  content: z.string().optional(),
-  type: z.enum(["TEXT", "IMAGE", "SYSTEM_EVENT"]),
+  type: z.literal("TEXT"),
+  content: z.string().min(1),
   metadata: InputJsonValueSchema.optional(),
   replyToId: UuidSchema.nullable().optional(),
 });
+
+const ImageMessageSchema = z.object({
+  chatId: UuidSchema,
+  type: z.literal("IMAGE"),
+  content: z.string().optional(),
+  metadata: InputJsonValueSchema,
+  replyToId: UuidSchema.nullable().optional(),
+});
+
+export const MessageCreateSchema = z.discriminatedUnion("type", [
+  TextMessageSchema,
+  ImageMessageSchema,
+]);
 
 export type MessageCreate = z.infer<typeof MessageCreateSchema>;
 
