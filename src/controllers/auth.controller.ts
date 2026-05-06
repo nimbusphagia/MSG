@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { validateLogin } from "../services/auth.service";
 import { LoginSchema } from "../schemas/auth.schema";
 import { UserInputSchema } from "../schemas/user.schema";
-import { createUser } from "../services/user.service";
+import { createUser, getUserById } from "../services/user.service";
+import { UnauthorizedError } from "../errors";
 
 export async function login(req: Request, res: Response, next: NextFunction) {
   try {
@@ -21,11 +22,28 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
-export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function register(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     const data = UserInputSchema.parse(req.body);
     const user = await createUser(data);
     res.status(201).json(user);
+  } catch (err) {
+    next(err);
+  }
+}
+export async function getCurrentUser(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  try {
+    if (!req.user) throw new UnauthorizedError("Not authenticated");
+    const user = await getUserById(req.user.id);
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }

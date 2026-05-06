@@ -11,7 +11,7 @@ export const UserModelSchema = z.object({
   contactOf: z.array(z.unknown()),
   chats: z.array(z.unknown()),
   chatMembers: z.array(z.unknown()),
-  sentMessages: z.array(z.unknown())
+  sentMessages: z.array(z.unknown()),
 });
 
 export type UserPureType = z.infer<typeof UserModelSchema>;
@@ -26,37 +26,35 @@ export const UserSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 
-
 export const SafeUserSchema = UserSchema.omit({
   passwordHash: true,
 });
 export type SafeUser = z.infer<typeof SafeUserSchema>;
 
-export const UserInputSchema = UserSchema
-  .omit({
-    id: true,
-    passwordHash: true,
-    imgUrl: true
-  })
-  .extend({
-    password: PasswordSchema,
-  });
+export const UserInputSchema = UserSchema.omit({
+  id: true,
+  passwordHash: true,
+  imgUrl: true,
+}).extend({
+  password: PasswordSchema,
+});
 export type UserInput = z.infer<typeof UserInputSchema>;
 
-export const UserEditInputSchema = UserSchema
-  .omit({ passwordHash: true })
+export const UserEditInputSchema = UserSchema.omit({ passwordHash: true })
   .partial()
   .required({ id: true });
-export type UserEditInput = z.infer<typeof UserEditInputSchema>
+export type UserEditInput = z.infer<typeof UserEditInputSchema>;
 
-export const UserEditPasswordSchema = z.object({
-  id: UuidSchema,
-  oldPassword: PasswordSchema,
-  newPassword: PasswordSchema,
-}).refine(
-  (data) => data.oldPassword !== data.newPassword,
-  { message: "New password must be different from old password", path: ["newPassword"] }
-);
+export const UserEditPasswordSchema = z
+  .object({
+    id: UuidSchema,
+    oldPassword: PasswordSchema,
+    newPassword: PasswordSchema,
+  })
+  .refine((data) => data.oldPassword !== data.newPassword, {
+    message: "New password must be different from old password",
+    path: ["newPassword"],
+  });
 export type UserEditPassword = z.infer<typeof UserEditPasswordSchema>;
 
 export const UserDeleteSchema = z.object({
@@ -64,4 +62,3 @@ export const UserDeleteSchema = z.object({
   password: PasswordSchema,
 });
 export type UserDelete = z.infer<typeof UserDeleteSchema>;
-

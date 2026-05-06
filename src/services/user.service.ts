@@ -1,39 +1,57 @@
 import prisma from "../config/prisma";
 import bcrypt from "bcrypt";
-import { SafeUser, UserDelete, UserEditInput, UserEditPassword, UserInput } from "../schemas/user.schema";
+import {
+  SafeUser,
+  UserDelete,
+  UserEditInput,
+  UserEditPassword,
+  UserInput,
+} from "../schemas/user.schema";
 import type { UuidType } from "../schemas/util.schema";
-import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../errors";
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+  ValidationError,
+} from "../errors";
 import { validateService } from "./utils";
 
 export async function getUsers(): Promise<SafeUser[]> {
   return prisma.user.findMany({
     omit: {
       passwordHash: true,
-    }
+    },
   });
 }
 export async function getUserById(id: UuidType): Promise<SafeUser | null> {
   const user = await prisma.user.findUnique({
     where: { id },
-    omit: { passwordHash: true }
+    omit: { passwordHash: true },
   });
   if (!user) throw new NotFoundError("User not found");
   return user;
 }
-export async function createUser({ username, password, name }: UserInput): Promise<SafeUser> {
+export async function createUser({
+  username,
+  password,
+  name,
+}: UserInput): Promise<SafeUser> {
   await validateUsername(username);
   const passwordHash = await bcrypt.hash(password, 12);
   return prisma.user.create({
     data: { username, passwordHash, name },
-    omit: { passwordHash: true }
-  })
+    omit: { passwordHash: true },
+  });
 }
 export async function editUser(
   { id, username, name, imgUrl }: UserEditInput,
-  currentUserId: UuidType
+  currentUserId: UuidType,
 ): Promise<SafeUser> {
   validateService({ id, currentUserId });
-  const existingUser = await prisma.user.findUnique({ where: { id }, select: { id: true } });
+  const existingUser = await prisma.user.findUnique({
+    where: { id },
+    select: { id: true },
+  });
   if (!existingUser) throw new NotFoundError("User not found");
 
   if (username) await validateUsername(username);
@@ -54,26 +72,32 @@ export async function editUser(
     omit: { passwordHash: true },
   });
 }
-export async function changePassword({ id, oldPassword, newPassword }: UserEditPassword, currentUserId: UuidType): Promise<SafeUser> {
+export async function changePassword(
+  { id, oldPassword, newPassword }: UserEditPassword,
+  currentUserId: UuidType,
+): Promise<SafeUser> {
   validateService({ id, currentUserId });
   await validateUserWithPassword(id, oldPassword);
   const newHash = await bcrypt.hash(newPassword, 12);
   return prisma.user.update({
     where: { id },
     data: { passwordHash: newHash },
-    omit: { passwordHash: true }
-  })
+    omit: { passwordHash: true },
+  });
 }
-export async function deleteUserServ({ id, password }: UserDelete, currentUserId: UuidType): Promise<void> {
+export async function deleteUserServ(
+  { id, password }: UserDelete,
+  currentUserId: UuidType,
+): Promise<void> {
   validateService({ id, currentUserId });
   await validateUserWithPassword(id, password);
   await prisma.user.delete({ where: { id } });
 }
-// UTILS 
+// UTILS
 async function validateUsername(username: string): Promise<void> {
   const existingUser = await prisma.user.findUnique({
     where: { username },
-    select: { id: true }
+    select: { id: true },
   });
   if (existingUser) {
     throw new ConflictError("Username already taken");
@@ -85,4 +109,3 @@ async function validateUserWithPassword(id: string, password: string) {
   const isPassword = await bcrypt.compare(password, existingUser.passwordHash);
   if (!isPassword) throw new UnauthorizedError("Incorrect Password");
 }
-
