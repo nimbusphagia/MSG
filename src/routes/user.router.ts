@@ -14,8 +14,8 @@ const userRouter = Router();
 userRouter.use("/contact", contactRouter);
 
 userRouter.get("/", getAll);
-userRouter.get("/:id", getById);
 userRouter.get("/me", getCurrentUser);
+userRouter.get("/:id", getById);
 userRouter.patch("/:id", edit);
 userRouter.delete("/:id", deleteUser);
 userRouter.patch("/password/:id", editPassword);

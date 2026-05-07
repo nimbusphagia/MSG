@@ -9,21 +9,19 @@ export const ChatSchema = z.object({
   createdAt: z.date(),
   isGroup: z.boolean(),
   members: z.array(ChatMemberSchema),
-  messages: z.array(ChatMessageSchema)
+  messages: z.array(ChatMessageSchema),
 });
 
 export type ChatType = z.infer<typeof ChatSchema>;
 
-
 export const ChatLazySchema = z.object({
   id: UuidSchema,
-  createdById: UuidSchema.nullable(),
   createdAt: z.date(),
   isGroup: z.boolean(),
+  otherMember: ChatMemberSchema,
+  lastMessage: ChatMessageSchema.optional(),
 });
-
 export type ChatLazy = z.infer<typeof ChatLazySchema>;
-
 
 export const GroupChatSchema = z.object({
   id: UuidSchema,
@@ -33,7 +31,7 @@ export const GroupChatSchema = z.object({
   createdAt: z.date(),
   isGroup: z.boolean(),
   members: z.array(ChatMemberSchema),
-  messages: z.array(ChatMessageSchema)
+  messages: z.array(ChatMessageSchema),
 });
 
 export type GroupChatType = z.infer<typeof GroupChatSchema>;
@@ -46,5 +44,3 @@ export const GroupChatInputSchema = z.object({
 });
 
 export type GroupChatInput = z.infer<typeof GroupChatInputSchema>;
-
-
