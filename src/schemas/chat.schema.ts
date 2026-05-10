@@ -2,6 +2,7 @@ import z from "zod";
 import { ChatMemberSchema } from "./member.schema";
 import { ChatMessageSchema } from "./message.schema";
 import { UuidSchema } from "./util.schema";
+import { SafeUserSchema } from "./user.schema";
 
 export const ChatSchema = z.object({
   id: UuidSchema,
@@ -18,7 +19,7 @@ export const ChatLazySchema = z.object({
   id: UuidSchema,
   createdAt: z.date(),
   isGroup: z.boolean(),
-  otherMember: ChatMemberSchema,
+  otherMember: SafeUserSchema,
   lastMessage: ChatMessageSchema.optional(),
 });
 export type ChatLazy = z.infer<typeof ChatLazySchema>;

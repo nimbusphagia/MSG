@@ -1,22 +1,35 @@
 import { NextFunction, Request, Response } from "express";
 import { UuidSchema } from "../schemas/util.schema";
 import { UnauthorizedError } from "../errors";
-import { createChatServ, deleteChatServ, getChatById, getChatsById } from "../services/chat.service";
+import {
+  createChatServ,
+  deleteChatServ,
+  getChatById,
+  getChatsById,
+} from "../services/chat.service";
 
-export async function getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getAll(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
-    const currentUserId = req.user.id
+    const currentUserId = req.user.id;
     const chats = await getChatsById(currentUserId);
     res.status(200).json(chats);
   } catch (err) {
     next(err);
   }
 }
-export async function getChat(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function getChat(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
-    const currentUserId = req.user.id
+    const currentUserId = req.user.id;
     const chatId = UuidSchema.parse(req.params.id);
     const chat = await getChatById(chatId, currentUserId);
     res.status(200).json(chat);
@@ -25,7 +38,11 @@ export async function getChat(req: Request, res: Response, next: NextFunction): 
   }
 }
 
-export async function createChat(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function createChat(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
     const currentUserId = req.user.id;
@@ -36,10 +53,14 @@ export async function createChat(req: Request, res: Response, next: NextFunction
     next(err);
   }
 }
-export async function deleteChat(req: Request, res: Response, next: NextFunction): Promise<void> {
+export async function deleteChat(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
     if (!req.user) throw new UnauthorizedError("Not authenticated");
-    const currentUserId = req.user.id
+    const currentUserId = req.user.id;
     const chatId = UuidSchema.parse(req.params.id);
     await deleteChatServ(chatId, currentUserId);
     res.status(204).end();
@@ -47,4 +68,3 @@ export async function deleteChat(req: Request, res: Response, next: NextFunction
     next(err);
   }
 }
-

@@ -36,13 +36,15 @@ export async function getChatsById(
     },
   });
 
-  return raw.map((chat) =>
+  console.log(raw[0].members[0]);
+  const mapped = raw.map((chat) =>
     ChatLazySchema.parse({
       ...chat,
-      otherMember: chat.members[0],
+      otherMember: chat.members[0].user,
       lastMessage: chat.messages[0] ?? undefined,
     }),
   );
+  return mapped;
 }
 export async function getChatById(
   id: UuidType,
