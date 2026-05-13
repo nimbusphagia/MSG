@@ -51,7 +51,6 @@ model Chat {
   messages    ChatMessage[]
 }
 
-// For Groups
 model ChatMember {
   id     String         @id @default(uuid(7)) @db.Uuid
   chat   Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)
@@ -80,6 +79,7 @@ model ChatMessage {
   replyTo   ChatMessage?    @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
   replyToId String?         @db.Uuid
   replies   ChatMessage[]   @relation("MessageReplies")
+  isRead     Boolean       @default(false)
 }
 
 enum ChatMessageType {

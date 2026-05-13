@@ -15,6 +15,16 @@ export const ChatSchema = z.object({
 
 export type ChatType = z.infer<typeof ChatSchema>;
 
+export const ChatResponseSchema = z.object({
+  id: UuidSchema,
+  isGroup: z.boolean(),
+  primaryMember: SafeUserSchema,
+  secondaryMember: SafeUserSchema,
+  messages: z.array(ChatMessageSchema),
+});
+
+export type ChatResponse = z.infer<typeof ChatResponseSchema>;
+
 export const ChatLazySchema = z.object({
   id: UuidSchema,
   createdAt: z.date(),

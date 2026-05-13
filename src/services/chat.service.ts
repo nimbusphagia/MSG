@@ -1,7 +1,12 @@
 import prisma from "../config/prisma";
 import type { UuidType } from "../schemas/util.schema";
 import { ConflictError, NotFoundError } from "../errors";
-import { ChatLazy, ChatLazySchema, ChatType } from "../schemas/chat.schema";
+import {
+  ChatLazy,
+  ChatLazySchema,
+  ChatResponse,
+  ChatType,
+} from "../schemas/chat.schema";
 import { safeUserInclude } from "./utils";
 
 export async function getChatsById(
@@ -36,7 +41,6 @@ export async function getChatsById(
     },
   });
 
-  console.log(raw[0].members[0]);
   const mapped = raw.map((chat) =>
     ChatLazySchema.parse({
       ...chat,
@@ -49,30 +53,32 @@ export async function getChatsById(
 export async function getChatById(
   id: UuidType,
   currentUserId: UuidType,
-): Promise<ChatType> {
-  const chat = await prisma.chat.findUnique({
-    where: {
-      isGroup: false,
-      id,
-      members: {
-        some: {
-          userId: currentUserId,
-        },
-      },
-    },
-    include: {
-      members: {
-        include: safeUserInclude,
-      },
-      messages: true,
-    },
-    omit: {
-      name: true,
-      imgUrl: true,
-    },
+): Promise<ChatResponse> {
+  const raw = await prisma.chat.findUnique({
+    where: { id, isGroup: false, members: { some: { userId: currentUserId } } },
+    include: { members: { select: safeUserInclude }, messages: true },
+    omit: { name: true, imgUrl: true },
   });
-  if (!chat) throw new NotFoundError("Chat doesn't exist");
-  return chat;
+
+  if (!raw) throw new NotFoundError("Chat doesn't exist");
+
+  const { id: chatId, isGroup, members, messages } = raw;
+
+  const primaryMember = members.find((m) => m.user!.id === currentUserId)?.user;
+  const secondaryMember = members.find(
+    (m) => m.user!.id !== currentUserId,
+  )?.user;
+
+  if (!primaryMember || !secondaryMember)
+    throw new NotFoundError("Chat members not found");
+
+  return {
+    id: chatId,
+    isGroup,
+    primaryMember,
+    secondaryMember,
+    messages,
+  };
 }
 
 export async function createChatServ(

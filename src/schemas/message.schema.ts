@@ -1,5 +1,9 @@
 import z from "zod";
-import { InputJsonValueSchema, JsonValueSchema, UuidSchema } from "./util.schema";
+import {
+  InputJsonValueSchema,
+  JsonValueSchema,
+  UuidSchema,
+} from "./util.schema";
 
 export const ChatMessageModelSchema = z.object({
   id: z.string(),
@@ -13,7 +17,7 @@ export const ChatMessageModelSchema = z.object({
   createdAt: z.date(),
   replyTo: z.unknown().nullable(),
   replyToId: z.string().nullable(),
-  replies: z.array(z.unknown())
+  replies: z.array(z.unknown()),
 });
 
 export type ChatMessagePureType = z.infer<typeof ChatMessageModelSchema>;
@@ -27,6 +31,7 @@ export const ChatMessageSchema = z.object({
   metadata: JsonValueSchema.nullable(),
   createdAt: z.date(),
   replyToId: UuidSchema.nullable(),
+  isRead: z.boolean(),
 });
 
 export type MessageType = z.infer<typeof ChatMessageSchema>;

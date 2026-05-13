@@ -12,7 +12,10 @@ async function generateToken(userId: string): Promise<string> {
     .setExpirationTime("1d")
     .sign(JWT_SECRET);
 }
-export async function validateLogin({ username, password }: LoginInput): Promise<string> {
+export async function validateLogin({
+  username,
+  password,
+}: LoginInput): Promise<string> {
   const user = await prisma.user.findUnique({ where: { username } });
 
   if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
