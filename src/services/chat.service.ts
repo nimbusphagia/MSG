@@ -30,7 +30,18 @@ export async function getChatsById(
             not: currentUserId,
           },
         },
-        select: safeUserInclude,
+        select: {
+          user: {
+            include: {
+              contactOf: {
+                where: { ownerId: currentUserId },
+                select: { nickname: true },
+                take: 1,
+              },
+            },
+            omit: { passwordHash: true },
+          },
+        },
       },
       messages: {
         orderBy: {
@@ -41,14 +52,21 @@ export async function getChatsById(
     },
   });
 
-  const mapped = raw.map((chat) =>
-    ChatLazySchema.parse({
+  const mapped = raw.map((chat) => {
+    const member = chat.members[0];
+    const nickname = member.user?.contactOf[0]?.nickname ?? null;
+
+    return ChatLazySchema.parse({
       ...chat,
-      otherMember: chat.members[0].user,
+      otherMember: { ...member.user, nickname },
       lastMessage: chat.messages[0] ?? undefined,
-    }),
-  );
-  return mapped;
+    });
+  });
+  return mapped.sort((a, b) => {
+    const aDate = a.lastMessage?.createdAt ?? a.createdAt;
+    const bDate = b.lastMessage?.createdAt ?? b.createdAt;
+    return bDate.getTime() - aDate.getTime();
+  });
 }
 export async function getChatById(
   id: UuidType,
@@ -62,21 +80,26 @@ export async function getChatById(
 
   if (!raw) throw new NotFoundError("Chat doesn't exist");
 
-  const { id: chatId, isGroup, members, messages } = raw;
+  const { id: chatId, isGroup, createdAt, members, messages } = raw;
 
-  const primaryMember = members.find((m) => m.user!.id === currentUserId)?.user;
-  const secondaryMember = members.find(
-    (m) => m.user!.id !== currentUserId,
-  )?.user;
+  const primaryRaw = members.find((m) => m.user!.id === currentUserId)?.user;
+  const secondaryRaw = members.find((m) => m.user!.id !== currentUserId)?.user;
 
-  if (!primaryMember || !secondaryMember)
+  if (!primaryRaw || !secondaryRaw)
     throw new NotFoundError("Chat members not found");
 
+  const secondaryContact = await prisma.contact.findUnique({
+    where: { ownerId_userId: { ownerId: currentUserId, userId: id } },
+  });
   return {
     id: chatId,
     isGroup,
-    primaryMember,
-    secondaryMember,
+    createdAt,
+    primaryMember: primaryRaw,
+    secondaryMember: {
+      ...secondaryRaw,
+      nickname: secondaryContact ? secondaryContact.nickname : null,
+    },
     messages,
   };
 }

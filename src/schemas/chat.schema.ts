@@ -18,8 +18,9 @@ export type ChatType = z.infer<typeof ChatSchema>;
 export const ChatResponseSchema = z.object({
   id: UuidSchema,
   isGroup: z.boolean(),
+  createdAt: z.date(),
   primaryMember: SafeUserSchema,
-  secondaryMember: SafeUserSchema,
+  secondaryMember: SafeUserSchema.extend({ nickname: z.string().nullable() }),
   messages: z.array(ChatMessageSchema),
 });
 
@@ -29,7 +30,9 @@ export const ChatLazySchema = z.object({
   id: UuidSchema,
   createdAt: z.date(),
   isGroup: z.boolean(),
-  otherMember: SafeUserSchema,
+  otherMember: SafeUserSchema.extend({
+    nickname: z.string().nullable(),
+  }),
   lastMessage: ChatMessageSchema.optional(),
 });
 export type ChatLazy = z.infer<typeof ChatLazySchema>;
