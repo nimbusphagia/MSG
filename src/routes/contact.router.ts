@@ -1,13 +1,20 @@
 import { Router } from "express";
-import { create, deleteContact, editNickname, getAll, getById, toggleIsBlocked } from "../controllers/contact.controller";
+import {
+  create,
+  deleteContact,
+  editNickname,
+  getAll,
+  getById,
+  toggleIsBlocked,
+} from "../controllers/contact.controller";
 
 const contactRouter = Router();
 
 contactRouter.get("/", getAll);
-contactRouter.get("/:id", getById);
+contactRouter.get("/:contactId", getById);
 contactRouter.post("/", create);
-contactRouter.patch("/:id", editNickname);
-contactRouter.delete("/:id", deleteContact);
-contactRouter.patch("/block/:id", toggleIsBlocked);
+contactRouter.patch("/:contactId", editNickname);
+contactRouter.delete("/:contactId", deleteContact);
+contactRouter.patch("/block/:contactId", toggleIsBlocked);
 
 export default contactRouter;
