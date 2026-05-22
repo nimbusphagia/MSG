@@ -47,7 +47,7 @@ export async function createContact(
 export async function editNicknameServ(
   { id, nickname }: ContactNicknameInput,
   currentUserId: UuidType,
-): Promise<ContactOutput> {
+): Promise<ContactType> {
   const existingContact = await prisma.contact.findUnique({
     where: { id, ownerId: currentUserId },
   });
@@ -56,6 +56,7 @@ export async function editNicknameServ(
   return prisma.contact.update({
     where: { id },
     data: { nickname },
+    include: safeUserInclude,
   });
 }
 

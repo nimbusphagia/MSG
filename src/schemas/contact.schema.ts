@@ -9,7 +9,7 @@ export const ContactModelSchema = z.object({
   user: z.unknown().nullable(),
   userId: UuidSchema.nullable(),
   nickname: z.string().nullable(),
-  isBlocked: z.boolean()
+  isBlocked: z.boolean(),
 });
 
 export type ContactPureType = z.infer<typeof ContactModelSchema>;
@@ -20,17 +20,16 @@ export const ContactSchema = z.object({
   user: SafeUserSchema.nullable(),
   userId: UuidSchema.nullable(),
   nickname: z.string().nullable(),
-  isBlocked: z.boolean()
+  isBlocked: z.boolean(),
 });
 
 export type ContactType = z.infer<typeof ContactSchema>;
 
 export const ContactNicknameInputSchema = z.object({
   id: UuidSchema,
-  nickname: z.string(),
+  nickname: z.string().nullable(),
 });
 export type ContactNicknameInput = z.infer<typeof ContactNicknameInputSchema>;
 
 export const ContactOutput = ContactSchema.omit({ user: true });
 export type ContactOutput = z.infer<typeof ContactOutput>;
-

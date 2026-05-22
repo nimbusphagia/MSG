@@ -89,7 +89,9 @@ export async function getChatById(
     throw new NotFoundError("Chat members not found");
 
   const secondaryContact = await prisma.contact.findUnique({
-    where: { ownerId_userId: { ownerId: currentUserId, userId: id } },
+    where: {
+      ownerId_userId: { ownerId: currentUserId, userId: secondaryRaw.id },
+    },
   });
   return {
     id: chatId,
