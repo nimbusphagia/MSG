@@ -48,7 +48,7 @@ const ImageMessageSchema = z.object({
   chatId: UuidSchema,
   type: z.literal("IMAGE"),
   content: z.string().optional(),
-  metadata: InputJsonValueSchema,
+  metadata: InputJsonValueSchema.optional(),
   replyToId: UuidSchema.nullable().optional(),
 });
 

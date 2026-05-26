@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { UnauthorizedError } from "../errors";
+import { UnauthorizedError, ValidationError } from "../errors";
 import { UuidSchema } from "../schemas/util.schema";
 import {
   createMessage,
@@ -7,6 +7,7 @@ import {
   editMessage,
 } from "../services/message.service";
 import { MessageCreateSchema } from "../schemas/message.schema";
+import { uploadImage } from "../utils/uploadImage";
 
 export async function create(
   req: Request,
@@ -14,10 +15,34 @@ export async function create(
   next: NextFunction,
 ): Promise<void> {
   try {
-    if (!req.user) throw new UnauthorizedError("Not authenticated");
+    if (!req.user) {
+      throw new UnauthorizedError("Not authenticated");
+    }
+
     const currentUserId = req.user.id;
-    const data = MessageCreateSchema.parse(req.body);
+
+    const data = MessageCreateSchema.parse({
+      ...req.body,
+    });
+
+    if (data.type === "IMAGE") {
+      if (!req.file) {
+        throw new ValidationError("Image file required");
+      }
+
+      const result: any = await uploadImage(req.file.buffer, "msg");
+
+      data.metadata = {
+        url: result.secure_url,
+        publicId: result.public_id,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+      };
+    }
+
     const chat = await createMessage(data, currentUserId);
+
     res.status(201).json(chat);
   } catch (err) {
     next(err);

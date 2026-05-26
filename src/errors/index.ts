@@ -1,5 +1,8 @@
 export class AppError extends Error {
-  constructor(message: string, public statusCode: number) {
+  constructor(
+    message: string,
+    public statusCode: number,
+  ) {
     super(message);
     this.name = new.target.name;
     Error.captureStackTrace?.(this, this.constructor);
