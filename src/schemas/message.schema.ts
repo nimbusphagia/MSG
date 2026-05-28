@@ -59,6 +59,28 @@ export const MessageCreateSchema = z.discriminatedUnion("type", [
 
 export type MessageCreate = z.infer<typeof MessageCreateSchema>;
 
+const TextInputSchema = z.object({
+  chatId: UuidSchema,
+  type: z.literal("TEXT"),
+  content: z.string().min(1),
+  replyToId: UuidSchema.nullable().optional(),
+});
+
+const ImageInputSchema = z.object({
+  chatId: UuidSchema,
+  type: z.literal("IMAGE"),
+  content: z.string().optional(),
+  metadata: InputJsonValueSchema.optional(),
+  replyToId: UuidSchema.nullable().optional(),
+});
+
+export const MessageInputSchema = z.discriminatedUnion("type", [
+  TextInputSchema,
+  ImageInputSchema,
+]);
+
+export type MessageInput = z.infer<typeof MessageCreateSchema>;
+
 export const MessageEditSchema = z.object({
   id: UuidSchema,
   chatId: UuidSchema,

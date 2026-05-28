@@ -6,7 +6,10 @@ import {
   deleteMessageServ,
   editMessage,
 } from "../services/message.service";
-import { MessageCreateSchema } from "../schemas/message.schema";
+import {
+  MessageCreateSchema,
+  MessageInputSchema,
+} from "../schemas/message.schema";
 import { uploadImage } from "../utils/uploadImage";
 
 export async function create(
@@ -18,21 +21,14 @@ export async function create(
     if (!req.user) {
       throw new UnauthorizedError("Not authenticated");
     }
-
     const currentUserId = req.user.id;
-
-    const data = MessageCreateSchema.parse({
-      ...req.body,
-    });
-
-    if (data.type === "IMAGE") {
+    const message = MessageInputSchema.parse(req.body);
+    if (message.type === "IMAGE") {
       if (!req.file) {
         throw new ValidationError("Image file required");
       }
-
       const result: any = await uploadImage(req.file.buffer, "msg");
-
-      data.metadata = {
+      message.metadata = {
         url: result.secure_url,
         publicId: result.public_id,
         width: result.width,
@@ -40,9 +36,7 @@ export async function create(
         format: result.format,
       };
     }
-
-    const chat = await createMessage(data, currentUserId);
-
+    const chat = await createMessage(message, currentUserId);
     res.status(201).json(chat);
   } catch (err) {
     next(err);
