@@ -55,6 +55,7 @@ export const GroupChatInputSchema = z.object({
   name: z.string().min(1),
   imgUrl: z.url(),
   createdById: UuidSchema.optional(),
+  members: z.array(UuidSchema),
 });
 
 export type GroupChatInput = z.infer<typeof GroupChatInputSchema>;
